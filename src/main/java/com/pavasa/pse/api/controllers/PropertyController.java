@@ -7,15 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/property")
+@CrossOrigin(origins = "*")
 public class PropertyController {
 
     @Autowired
     PropertyService propertyService;
 
-    @GetMapping(value = "id/{propertyId}")
+    @GetMapping(value = "/{propertyId}")
     public ResponseEntity getProperty(@PathVariable(value = "propertyId") String propertyId) {
         HashMap<String, Object> result = new HashMap<>();
         Property property = propertyService.getProperty(propertyId);
@@ -24,20 +26,42 @@ public class PropertyController {
             return ResponseEntity.badRequest().body(result);
         }
 
-        result.put("property", property);
-        result.put("api", "java");
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(property);
     }
+
+    @GetMapping
+    public ResponseEntity getProperties() {
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            List<Property> properties = propertyService.getProperties();
+            if (properties.size() != 0) {
+                return ResponseEntity.ok(properties);
+            }
+
+        } catch (Exception ignored) {
+
+        }
+        result.put("error", "No properties found");
+        return ResponseEntity.badRequest().body(result);
+
+    }
+
 
     @PostMapping
-    public ResponseEntity addProperty(@RequestBody Property property){
-        return ResponseEntity.ok(propertyService.addProperty(property));
+    public ResponseEntity addOrUpdateProperty(@RequestBody Property property) {
+        try {
+            final Property insertedProperty = propertyService.addOrUpdateProperty(property);
+
+            if (insertedProperty.getId() != null) {
+                return ResponseEntity.ok(insertedProperty);
+            }
+        } catch (Exception ignored) {
+
+        }
+        final HashMap<String, Object> result = new HashMap<>();
+        result.put("errorMsg", "There is some technical error, please try again");
+        return ResponseEntity.badRequest().body(result);
     }
 
-    @PutMapping
-    public ResponseEntity updateProperty(@RequestBody Property property){
-        return ResponseEntity.ok(propertyService.updateProperty(property));
-    }
 
 }

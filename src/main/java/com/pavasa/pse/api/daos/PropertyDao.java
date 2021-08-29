@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.mongodb.client.model.Filters.eq;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -34,19 +37,36 @@ public class PropertyDao extends AbstractPSEDao {
         this.propertiesCollection = db.getCollection(COLLECTION_NAME, Property.class).withCodecRegistry(pojoCodecRegistry);
     }
 
+    public List<Property> getProperties() {
+        List<Property> properties = new ArrayList<Property>();
+        propertiesCollection.find().iterator().forEachRemaining(properties :: add);
+        return properties;
+    }
+
     public Property getProperty(String id) {
         Bson filter = eq("_id", new ObjectId(id));
         return propertiesCollection.find(filter).first();
     }
 
-    public String addProperty(Property property) {
-        InsertOneResult result = propertiesCollection.insertOne(property);
-        return result.wasAcknowledged() + "";
+    public Property addOrUpdateProperty(Property property) {
+        // for update property
+        if (property.getId() != null) {
+            return updateProperty(property);
+        }
+        return addProperty(property);
     }
 
-    public Boolean updateProperty(Property property) {
-        UpdateResult updateResult = propertiesCollection.replaceOne(Filters.eq("_id", new ObjectId(property.getId())), property);
-        return updateResult.wasAcknowledged();
+    private Property addProperty(Property property) {
+        InsertOneResult result = propertiesCollection.insertOne(property);
+        if (result.wasAcknowledged()) {
+            property.setOid(result.getInsertedId().asObjectId().getValue());
+        }
+        return property;
+    }
+
+    private Property updateProperty(Property property) {
+        propertiesCollection.replaceOne(Filters.eq("_id", new ObjectId(property.getId())), property);
+        return property;
     }
 
     private boolean validIdValue(String movieId) {

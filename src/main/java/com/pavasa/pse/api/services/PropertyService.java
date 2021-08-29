@@ -5,6 +5,8 @@ import com.pavasa.pse.api.models.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PropertyService {
 
@@ -20,11 +22,12 @@ public class PropertyService {
         return property;
     }
 
-    public String addProperty(Property property){
-        return propertyDao.addProperty(property);
+    public Property addOrUpdateProperty(Property property){
+        return propertyDao.addOrUpdateProperty(property);
     }
 
-    public Boolean updateProperty(Property property){
-        return propertyDao.updateProperty(property);
+    public List<Property> getProperties(){
+        return propertyDao.getProperties();
     }
+
 }
