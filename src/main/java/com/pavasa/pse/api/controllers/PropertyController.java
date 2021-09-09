@@ -46,7 +46,6 @@ public class PropertyController {
 
     }
 
-
     @PostMapping
     public ResponseEntity addOrUpdateProperty(@RequestBody Property property) {
         try {
@@ -62,6 +61,4 @@ public class PropertyController {
         result.put("errorMsg", "There is some technical error, please try again");
         return ResponseEntity.badRequest().body(result);
     }
-
-
 }

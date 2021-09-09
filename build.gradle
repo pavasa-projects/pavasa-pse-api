@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web', 'org.mongodb:mongodb-driver-sync'
+    implementation 'org.springframework.boot:spring-boot-starter-web', 'org.mongodb:mongodb-driver-sync', 'com.amazonaws:aws-java-sdk:1.12.58'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
